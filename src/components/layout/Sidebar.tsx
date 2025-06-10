@@ -73,7 +73,11 @@ export function Sidebar({ className }: SidebarProps) {
           )}
         </div>
         {/* Theme toggle button */}
-        <ThemeToggle />
+        {!collapsed && (
+          <div className="hidden md:inline-flex">
+            <ThemeToggle />
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
