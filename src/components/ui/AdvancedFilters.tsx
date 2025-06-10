@@ -1,4 +1,7 @@
-import { FC } from 'react';
+ 
+ 
+
+import React, { FC } from 'react';
 import { Button } from './button';
 import { Input } from './input';
 
@@ -17,19 +20,11 @@ const methodOptions = [
 ];
 
 interface AdvancedFiltersProps {
-    filters: {
-        status: string;
-        method: string;
-        dateFrom: string;
-        dateTo: string;
-        amountFrom: string;
-        amountTo: string;
-        search: string;
-    };
+    _filters: any;
     setFilters: (filters: any) => void;
 }
 
-export const AdvancedFilters: FC<AdvancedFiltersProps> = ({ filters, setFilters }) => {
+export const AdvancedFilters: FC<AdvancedFiltersProps> = ({ _filters: filters, setFilters }) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };

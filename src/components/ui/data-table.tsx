@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -31,17 +31,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import {
   Download,
   Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  SlidersHorizontal,
   Eye,
   Trash2
 } from 'lucide-react';
@@ -186,35 +183,36 @@ export function DataTable<TData extends object, TValue>({
   );
 
   // Add selection column to columns
-  const selectionColumn: ColumnDef<TData, any> = {
-    id: 'select',
-    header: ({ table }) => (
-      <input
-        type="checkbox"
-        checked={table.getIsAllPageRowsSelected()}
-        onChange={table.getToggleAllPageRowsSelectedHandler()}
-        className="accent-primary w-4 h-4 rounded border"
-        aria-label="انتخاب همه"
-      />
-    ),
-    cell: ({ row }) => (
-      <input
-        type="checkbox"
-        checked={row.getIsSelected()}
-        onChange={row.getToggleSelectedHandler()}
-        className="accent-primary w-4 h-4 rounded border"
-        aria-label="انتخاب ردیف"
-      />
-    ),
-    size: 32,
-    minSize: 32,
-    maxSize: 32,
-    enableResizing: false,
-    enableSorting: false,
-    enableHiding: false,
-  };
-
-  const allColumns = useMemo(() => [selectionColumn, ...columns], [columns]);
+  const allColumns = useMemo(() => {
+    const selectionColumn: ColumnDef<TData, any> = {
+      id: 'select',
+      header: ({ table }) => (
+        <input
+          type="checkbox"
+          checked={table.getIsAllPageRowsSelected()}
+          onChange={table.getToggleAllPageRowsSelectedHandler()}
+          className="accent-primary w-4 h-4 rounded border"
+          aria-label="انتخاب همه"
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          checked={row.getIsSelected()}
+          onChange={row.getToggleSelectedHandler()}
+          className="accent-primary w-4 h-4 rounded border"
+          aria-label="انتخاب ردیف"
+        />
+      ),
+      size: 32,
+      minSize: 32,
+      maxSize: 32,
+      enableResizing: false,
+      enableSorting: false,
+      enableHiding: false,
+    };
+    return [selectionColumn, ...columns];
+  }, [columns]);
 
   return (
     <div className="space-y-6">

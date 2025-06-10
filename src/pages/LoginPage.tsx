@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -25,7 +25,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loginError, setLoginError] = useState<string>('');
-  
+
   const {
     register,
     handleSubmit,
@@ -48,12 +48,12 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     setLoginError('');
-    
+
     try {
-      const success = await login(data);
+      const success = await login();
       if (success) {
-        toast.success('با موفقیت وارد شدید');
-        
+        toast.success('ورود موفقیت‌آمیز');
+
         // Redirect to the originally requested page or dashboard
         const from = location.state?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
@@ -61,7 +61,7 @@ export function LoginPage() {
         setLoginError('ایمیل یا رمز عبور اشتباه است');
         toast.error('ایمیل یا رمز عبور اشتباه است');
       }
-    } catch (error) {
+    } catch {
       setLoginError('خطا در ورود به سیستم');
       toast.error('خطا در ورود به سیستم');
     }

@@ -88,8 +88,11 @@
   font-display: swap;
 }
 
-body,
+*,
+*::after,
+*::before,
 html,
+body,
 #root {
   font-family: "IRANSans", "Vazirmatn", "sans-serif" !important;
 }

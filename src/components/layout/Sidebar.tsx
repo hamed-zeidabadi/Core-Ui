@@ -9,9 +9,8 @@ import {
   LayoutDashboard,
   Menu,
   LogOut,
-  ChevronLeft,
-  Loader2,
   ChevronRight,
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -50,7 +49,7 @@ export function Sidebar({ className }: SidebarProps) {
     try {
       await logout();
       toast.success('با موفقیت خارج شدید');
-    } catch (error) {
+    } catch {
       toast.error('خطا در خروج از سیستم');
     } finally {
       setIsLoggingOut(false);

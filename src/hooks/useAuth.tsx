@@ -1,6 +1,5 @@
 import { useState, useContext, createContext, ReactNode, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthUser, LoginFormData } from '@/types';
+import { AuthUser } from '@/types';
 // import { authService } from '@/services/authService';
 // import { tokenManager } from '@/lib/api';
 
@@ -8,9 +7,9 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginFormData) => Promise<boolean>;
+  login: () => Promise<boolean>;
   logout: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
+  forgotPassword: () => Promise<void>;
   checkAuthStatus: () => void;
 }
 
@@ -63,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(false);
   };
 
-  const login = async (credentials: LoginFormData): Promise<boolean> => {
+  const login = async () => {
     setIsLoading(true);
 
     try {
@@ -74,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const mockUser: AuthUser = {
         id: '1',
         name: 'مدیر سیستم',
-        email: credentials.email || 'admin@example.com',
+        email: 'admin@example.com',
         role: 'admin'
       };
 
@@ -107,11 +106,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const forgotPassword = async (email: string): Promise<void> => {
+  const forgotPassword = async (): Promise<void> => {
     try {
       // Mock forgot password for UI testing
       await new Promise(resolve => setTimeout(resolve, 500));
-      console.log(`Password reset email sent to ${email} (UI testing mode)`);
+      console.log('Password reset email sent (UI testing mode)');
     } catch (error) {
       console.error('Forgot password error:', error);
     }

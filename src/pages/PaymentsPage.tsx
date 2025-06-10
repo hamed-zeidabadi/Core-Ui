@@ -226,7 +226,7 @@ export function PaymentsPage() {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden mb-4"
           >
-            <AdvancedFilters filters={filters} setFilters={setFilters} />
+            <AdvancedFilters _filters={filters} setFilters={setFilters} />
           </motion.div>
         )}
       </AnimatePresence>

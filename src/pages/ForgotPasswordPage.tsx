@@ -20,9 +20,8 @@ const forgotPasswordSchema = z.object({
 export function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [error, setError] = useState<string>('');
   const { forgotPassword } = useAuth();
-  
+
   const {
     register,
     handleSubmit,
@@ -33,14 +32,12 @@ export function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
-    setError('');
-    
+
     try {
-      await forgotPassword(data.email);
+      await forgotPassword();
       setEmailSent(true);
       toast.success('ایمیل بازیابی رمز عبور ارسال شد');
-    } catch (error) {
-      setError('خطا در ارسال ایمیل بازیابی');
+    } catch {
       toast.error('خطا در ارسال ایمیل بازیابی');
     } finally {
       setIsLoading(false);
@@ -67,7 +64,7 @@ export function ForgotPasswordPage() {
               {emailSent ? 'ایمیل ارسال شد' : 'فراموشی رمز عبور'}
             </CardTitle>
             <CardDescription className="text-center">
-              {emailSent 
+              {emailSent
                 ? 'لطفاً ایمیل خود را بررسی کنید'
                 : 'ایمیل حساب کاربری خود را وارد کنید'
               }
@@ -95,10 +92,10 @@ export function ForgotPasswordPage() {
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {/* Error Message */}
-                {error && (
+                {errors.email && (
                   <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
                     <AlertCircle className="h-4 w-4" />
-                    {error}
+                    {errors.email.message}
                   </div>
                 )}
 
@@ -115,9 +112,6 @@ export function ForgotPasswordPage() {
                       {...register('email')}
                     />
                   </div>
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email.message}</p>
-                  )}
                 </div>
 
                 {/* Submit Button */}
