@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -13,6 +14,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { Payment } from '@/types';
 import { mockPayments } from '@/data/mockData';
 import { MoreHorizontal, Eye, Download, RefreshCw } from 'lucide-react';
+import { AdvancedFilters } from '@/components/ui/AdvancedFilters';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const getStatusVariant = (status: Payment['status']) => {
   switch (status) {
@@ -138,14 +141,14 @@ const columns: ColumnDef<Payment>[] = [
       const payment = row.original;
 
       return (
-        <DropdownMenu>
+        <DropdownMenu >
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">باز کردن منو</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="center" sideOffset={8} className="mr-2 md:mr-0">
             <DropdownMenuLabel>عملیات</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
               کپی شناسه پرداخت
@@ -176,13 +179,64 @@ const columns: ColumnDef<Payment>[] = [
 ];
 
 export function PaymentsPage() {
+  const [filters, setFilters] = useState({
+    status: '',
+    method: '',
+    dateFrom: '',
+    dateTo: '',
+    amountFrom: '',
+    amountTo: '',
+    search: '',
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Filtering logic
+  const filteredData = mockPayments.filter((item) => {
+    const statusMatch = !filters.status || item.status === filters.status;
+    const methodMatch = !filters.method || item.method === filters.method;
+    const dateFromMatch = !filters.dateFrom || new Date(item.createdAt) >= new Date(filters.dateFrom);
+    const dateToMatch = !filters.dateTo || new Date(item.createdAt) <= new Date(filters.dateTo);
+    const amountFromMatch = !filters.amountFrom || item.amount >= Number(filters.amountFrom);
+    const amountToMatch = !filters.amountTo || item.amount <= Number(filters.amountTo);
+    const searchMatch = !filters.search ||
+      item.userName.includes(filters.search) ||
+      item.description.includes(filters.search) ||
+      item.id.includes(filters.search);
+    return statusMatch && methodMatch && dateFromMatch && dateToMatch && amountFromMatch && amountToMatch && searchMatch;
+  });
+
   return (
-    <DataTable
-      columns={columns}
-      data={mockPayments}
-      title="مدیریت پرداخت‌ها"
-      searchPlaceholder="جستجو در پرداخت‌ها..."
-      exportFileName="payments"
-    />
+    <>
+      <div className="flex items-center justify-between mb-2">
+        <button
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-muted transition-colors text-sm font-medium shadow-sm"
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 6h18M6 12h12M9 18h6" /></svg>
+          فیلتر پیشرفته
+        </button>
+      </div>
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden mb-4"
+          >
+            <AdvancedFilters filters={filters} setFilters={setFilters} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        title="مدیریت پرداخت‌ها"
+        searchPlaceholder="جستجو در پرداخت‌ها..."
+        exportFileName="payments"
+      />
+    </>
   );
 }

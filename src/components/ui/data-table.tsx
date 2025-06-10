@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  RowSelectionState,
 } from '@tanstack/react-table';
 import * as XLSX from 'xlsx';
 
@@ -20,6 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from '@/components/ui/table';
 import {
   DropdownMenu,
@@ -31,19 +33,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Download, 
-  Search, 
-  Filter, 
-  ChevronLeft, 
+import {
+  Download,
+  Search,
+  Filter,
+  ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   SlidersHorizontal,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends object, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   title: string;
@@ -51,7 +54,7 @@ interface DataTableProps<TData, TValue> {
   exportFileName?: string;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends object, TValue>({
   columns,
   data,
   title,
@@ -62,6 +65,7 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState('');
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const table = useReactTable({
     data,
@@ -80,12 +84,18 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
       globalFilter,
+      rowSelection,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
   });
 
-  const exportToExcel = () => {
+  const exportToExcel = (onlySelected = false) => {
     const visibleColumns = table.getVisibleFlatColumns();
-    const exportData = table.getFilteredRowModel().rows.map(row => {
+    const exportRows = onlySelected
+      ? table.getFilteredSelectedRowModel().rows
+      : table.getFilteredRowModel().rows;
+    const exportData = exportRows.map(row => {
       const rowData: any = {};
       visibleColumns.forEach(column => {
         const cellValue = row.getValue(column.id);
@@ -100,6 +110,22 @@ export function DataTable<TData, TValue>({
     XLSX.writeFile(workbook, `${exportFileName}.xlsx`);
   };
 
+  // Calculate summary (for PaymentsPage)
+  const summary = useMemo(() => {
+    const rows = table.getFilteredRowModel().rows;
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const hasAmount = rows.length > 0 && 'amount' in rows[0].original;
+    const totalAmount = hasAmount ? rows.reduce((sum, row) => sum + (Number((row.original as any).amount) || 0), 0) : undefined;
+    const selectedAmount = hasAmount ? selectedRows.reduce((sum, row) => sum + (Number((row.original as any).amount) || 0), 0) : undefined;
+    return {
+      totalCount: rows.length,
+      totalAmount,
+      selectedCount: selectedRows.length,
+      selectedAmount,
+      hasAmount,
+    };
+  }, [table]);
+
   // Mobile card view for small screens
   const MobileCardView = () => (
     <div className="md:hidden space-y-4">
@@ -109,8 +135,8 @@ export function DataTable<TData, TValue>({
             {row.getVisibleCells().map((cell) => (
               <div key={cell.id} className="flex justify-between items-center">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {typeof cell.column.columnDef.header === 'string' 
-                    ? cell.column.columnDef.header 
+                  {typeof cell.column.columnDef.header === 'string'
+                    ? cell.column.columnDef.header
                     : cell.column.id}
                 </span>
                 <span className="text-sm">
@@ -124,6 +150,72 @@ export function DataTable<TData, TValue>({
     </div>
   );
 
+  // Bulk actions bar
+  const BulkActionsBar = () => (
+    <div className="flex flex-wrap gap-2 items-center bg-muted/60 border rounded-lg p-3 mb-4 shadow-sm">
+      <span className="text-sm font-medium">{summary.selectedCount} مورد انتخاب شده</span>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => exportToExcel(true)}
+        className="gap-2"
+      >
+        <Download className="h-4 w-4" />
+        خروجی اکسل (انتخاب‌شده‌ها)
+      </Button>
+      <Button
+        size="sm"
+        variant="destructive"
+        className="gap-2"
+        disabled
+      >
+        <Trash2 className="h-4 w-4" />
+        حذف گروهی
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => table.resetRowSelection()}
+      >
+        لغو انتخاب
+      </Button>
+      {summary.hasAmount && (summary.selectedAmount ?? 0) > 0 && (
+        <span className="text-xs text-muted-foreground">مجموع مبلغ انتخاب‌شده: {Number(summary.selectedAmount ?? 0).toLocaleString('fa-IR')} تومان</span>
+      )}
+    </div>
+  );
+
+  // Add selection column to columns
+  const selectionColumn: ColumnDef<TData, any> = {
+    id: 'select',
+    header: ({ table }) => (
+      <input
+        type="checkbox"
+        checked={table.getIsAllPageRowsSelected()}
+        onChange={table.getToggleAllPageRowsSelectedHandler()}
+        className="accent-primary w-4 h-4 rounded border"
+        aria-label="انتخاب همه"
+      />
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
+        className="accent-primary w-4 h-4 rounded border"
+        aria-label="انتخاب ردیف"
+      />
+    ),
+    size: 32,
+    minSize: 32,
+    maxSize: 32,
+    enableResizing: false,
+    enableSorting: false,
+    enableHiding: false,
+  };
+
+  const allColumns = useMemo(() => [selectionColumn, ...columns], [columns]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -131,10 +223,9 @@ export function DataTable<TData, TValue>({
         <div>
           <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
           <p className="text-muted-foreground">
-            مجموع {table.getFilteredRowModel().rows.length} مورد
+            مجموع {summary.totalCount} مورد
           </p>
         </div>
-        
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {/* Global Search */}
           <div className="relative">
@@ -146,7 +237,6 @@ export function DataTable<TData, TValue>({
               className="pr-10 md:w-[250px]"
             />
           </div>
-
           {/* Column Visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -157,8 +247,8 @@ export function DataTable<TData, TValue>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
+                .getAllLeafColumns()
+                .filter((column) => column.getCanHide() && column.id !== 'select')
                 .map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
@@ -177,12 +267,11 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-
           {/* Export */}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportToExcel}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportToExcel(false)}
             className="gap-2"
           >
             <Download className="h-4 w-4" />
@@ -190,6 +279,9 @@ export function DataTable<TData, TValue>({
           </Button>
         </div>
       </div>
+
+      {/* Bulk Actions Bar */}
+      {summary.selectedCount > 0 && <BulkActionsBar />}
 
       {/* Desktop Table */}
       <Card className="hidden md:block">
@@ -202,9 +294,9 @@ export function DataTable<TData, TValue>({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -231,7 +323,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={allColumns.length}
                   className="h-24 text-center"
                 >
                   هیچ داده‌ای یافت نشد.
@@ -239,6 +331,20 @@ export function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+          {/* Summary Row */}
+          {summary.hasAmount && typeof summary.totalAmount === 'number' && summary.totalCount > 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={2} className="font-bold text-right">جمع کل</TableCell>
+                <TableCell className="font-bold text-left" dir="ltr">
+                  {Number(summary.totalAmount ?? 0).toLocaleString('fa-IR')} تومان
+                </TableCell>
+                {allColumns.slice(3).map((col, idx) => (
+                  <TableCell key={col.id || idx} />
+                ))}
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       </Card>
 
@@ -251,7 +357,6 @@ export function DataTable<TData, TValue>({
           نمایش {table.getState().pagination.pageIndex + 1} از{' '}
           {table.getPageCount()} صفحه
         </div>
-        
         <div className="flex items-center gap-2">
           <Button
             variant="outline"

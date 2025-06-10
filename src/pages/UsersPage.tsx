@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -117,7 +117,7 @@ const columns: ColumnDef<User>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="center" sideOffset={8} className="mr-2 md:mr-0">
             <DropdownMenuLabel>عملیات</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
               کپی شناسه کاربر
