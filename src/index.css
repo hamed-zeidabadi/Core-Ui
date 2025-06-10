@@ -72,8 +72,24 @@
   .rtl {
     direction: rtl;
   }
-  
+
   .ltr {
     direction: ltr;
   }
+}
+
+@font-face {
+  font-family: "IRANSans";
+  src: url("./assets/fonts/IRANSansWeb.woff2") format("woff2"),
+    url("./assets/fonts/IRANSansWeb.woff") format("woff"),
+    url("./assets/fonts/IRANSansWeb.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body,
+html,
+#root {
+  font-family: "IRANSans", "Vazirmatn", "sans-serif";
 }
