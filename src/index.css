@@ -91,5 +91,5 @@
 body,
 html,
 #root {
-  font-family: "IRANSans", "Vazirmatn", "sans-serif";
+  font-family: "IRANSans", "Vazirmatn", "sans-serif" !important;
 }
