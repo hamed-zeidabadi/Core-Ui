@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const navigation = [
   {
@@ -59,7 +60,7 @@ export function Sidebar({ className }: SidebarProps) {
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex h-16 items-center border-b px-6">
+      <div className="flex h-16 items-center border-b px-6 justify-between">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
             <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
@@ -71,6 +72,8 @@ export function Sidebar({ className }: SidebarProps) {
             </div>
           )}
         </div>
+        {/* Theme toggle button */}
+        <ThemeToggle />
       </div>
 
       {/* Navigation */}
