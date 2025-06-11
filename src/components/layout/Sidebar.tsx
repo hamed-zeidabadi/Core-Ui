@@ -11,6 +11,7 @@ import {
   LogOut,
   ChevronRight,
   Loader2,
+  FolderOpen,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -31,6 +32,11 @@ const navigation = [
     name: 'پرداخت‌ها',
     href: '/dashboard/payments',
     icon: CreditCard,
+  },
+  {
+    name: 'مدیریت فایل‌ها',
+    href: '/dashboard/files',
+    icon: FolderOpen,
   },
 ];
 

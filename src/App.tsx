@@ -8,6 +8,7 @@ import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { UsersPage } from '@/pages/UsersPage';
 import { PaymentsPage } from '@/pages/PaymentsPage';
+import { FileManagerPage } from '@/pages/FileManagerPage';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
               <Route index element={<DashboardPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="payments" element={<PaymentsPage />} />
+              <Route path="files" element={<FileManagerPage />} />
             </Route>
 
             {/* Redirect root to login for UI testing */}
