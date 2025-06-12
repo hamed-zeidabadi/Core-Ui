@@ -1,77 +1,64 @@
-import { User, Payment } from '@/types';
+import { User, Payment, SubscriptionPlan, BackupHistory } from '@/types';
 
 export const mockUsers: User[] = [
   {
     id: '1',
     name: 'علی احمدی',
-    email: 'ali.ahmadi@example.com',
+    email: 'ali@example.com',
     role: 'admin',
     status: 'active',
     createdAt: '2024-01-15T10:30:00Z',
-    lastLogin: '2024-01-20T14:22:00Z'
+    lastLogin: '2024-01-20T14:22:00Z',
+    avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
   },
   {
     id: '2',
-    name: 'فاطمه محمدی',
-    email: 'fateme.mohammadi@example.com',
+    name: 'سارا نجفی',
+    email: 'sara@example.com',
     role: 'user',
     status: 'active',
-    createdAt: '2024-01-10T09:15:00Z',
-    lastLogin: '2024-01-19T11:45:00Z'
+    createdAt: '2024-01-14T09:15:00Z',
+    lastLogin: '2024-01-19T16:45:00Z',
+    avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
   },
   {
     id: '3',
-    name: 'حسن کریمی',
-    email: 'hassan.karimi@example.com',
-    role: 'moderator',
-    status: 'inactive',
-    createdAt: '2024-01-05T16:20:00Z',
-    lastLogin: '2024-01-18T08:30:00Z'
+    name: 'مریم جوادی',
+    email: 'maryam@example.com',
+    role: 'user',
+    status: 'active',
+    createdAt: '2024-01-13T11:20:00Z',
+    lastLogin: '2024-01-18T12:30:00Z',
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
   },
   {
     id: '4',
-    name: 'زهرا رضایی',
-    email: 'zahra.rezaei@example.com',
-    role: 'user',
-    status: 'pending',
-    createdAt: '2024-01-12T12:45:00Z'
+    name: 'حسین رضایی',
+    email: 'hossein@example.com',
+    role: 'moderator',
+    status: 'active',
+    createdAt: '2024-01-12T14:45:00Z',
+    lastLogin: '2024-01-17T10:15:00Z',
+    avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
   },
   {
     id: '5',
-    name: 'محمد حسینی',
-    email: 'mohammad.hosseini@example.com',
+    name: 'فاطمه کریمی',
+    email: 'fateme@example.com',
     role: 'user',
-    status: 'active',
-    createdAt: '2024-01-08T14:10:00Z',
-    lastLogin: '2024-01-20T09:15:00Z'
+    status: 'inactive',
+    createdAt: '2024-01-11T16:30:00Z',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
   },
   {
     id: '6',
-    name: 'مریم جوادی',
-    email: 'maryam.javadi@example.com',
+    name: 'امیر محمدی',
+    email: 'amir@example.com',
     role: 'user',
-    status: 'active',
-    createdAt: '2024-01-18T11:30:00Z',
-    lastLogin: '2024-01-20T16:20:00Z'
+    status: 'pending',
+    createdAt: '2024-01-10T08:45:00Z',
+    avatar: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
   },
-  {
-    id: '7',
-    name: 'رضا فراهانی',
-    email: 'reza.farahani@example.com',
-    role: 'moderator',
-    status: 'active',
-    createdAt: '2024-01-03T13:25:00Z',
-    lastLogin: '2024-01-19T10:40:00Z'
-  },
-  {
-    id: '8',
-    name: 'سارا نجفی',
-    email: 'sara.najafi@example.com',
-    role: 'user',
-    status: 'inactive',
-    createdAt: '2024-01-14T15:55:00Z',
-    lastLogin: '2024-01-17T12:15:00Z'
-  }
 ];
 
 export const mockPayments: Payment[] = [
@@ -84,83 +71,155 @@ export const mockPayments: Payment[] = [
     status: 'completed',
     method: 'credit_card',
     createdAt: '2024-01-20T10:30:00Z',
-    description: 'خرید اشتراک ماهانه'
+    description: 'اشتراک ماهانه پلن Pro',
   },
   {
     id: 'PAY-002',
     userId: '2',
-    userName: 'فاطمه محمدی',
+    userName: 'سارا نجفی',
     amount: 150000,
     currency: 'IRR',
-    status: 'pending',
+    status: 'completed',
     method: 'bank_transfer',
     createdAt: '2024-01-19T14:22:00Z',
-    description: 'پرداخت هزینه خدمات'
+    description: 'اشتراک ماهانه پلن Basic',
   },
   {
     id: 'PAY-003',
-    userId: '5',
-    userName: 'محمد حسینی',
+    userId: '3',
+    userName: 'مریم جوادی',
     amount: 500000,
     currency: 'IRR',
-    status: 'completed',
+    status: 'pending',
     method: 'digital_wallet',
-    createdAt: '2024-01-18T09:15:00Z',
-    description: 'خرید بسته پیشرفته'
+    createdAt: '2024-01-18T16:45:00Z',
+    description: 'اشتراک سالانه پلن Business',
   },
   {
     id: 'PAY-004',
-    userId: '6',
-    userName: 'مریم جوادی',
-    amount: 75000,
+    userId: '4',
+    userName: 'حسین رضایی',
+    amount: 250000,
     currency: 'IRR',
     status: 'failed',
     method: 'credit_card',
-    createdAt: '2024-01-17T16:45:00Z',
-    description: 'تمدید اشتراک'
+    createdAt: '2024-01-17T12:30:00Z',
+    description: 'اشتراک ماهانه پلن Pro',
   },
   {
     id: 'PAY-005',
-    userId: '3',
-    userName: 'حسن کریمی',
-    amount: 320000,
+    userId: '5',
+    userName: 'فاطمه کریمی',
+    amount: 150000,
     currency: 'IRR',
     status: 'refunded',
     method: 'bank_transfer',
-    createdAt: '2024-01-16T11:20:00Z',
-    description: 'بازگشت وجه خرید'
+    createdAt: '2024-01-16T09:15:00Z',
+    description: 'اشتراک ماهانه پلن Basic',
+  },
+];
+
+export const subscriptionPlans: SubscriptionPlan[] = [
+  {
+    id: 'free',
+    name: 'رایگان',
+    price: 0,
+    currency: 'IRR',
+    interval: 'monthly',
+    features: [
+      '۵ گیگابایت فضای ذخیره‌سازی',
+      '۱ کاربر',
+      'پشتیبان‌گیری هفتگی',
+      'پشتیبانی ایمیلی',
+      'رمزگذاری پایه'
+    ],
+    storageLimit: 5,
+    maxUsers: 1,
+    backupFrequency: 'هفتگی',
+    isCurrentPlan: false,
   },
   {
-    id: 'PAY-006',
-    userId: '7',
-    userName: 'رضا فراهانی',
-    amount: 180000,
+    id: 'pro',
+    name: 'حرفه‌ای',
+    price: 250000,
     currency: 'IRR',
+    interval: 'monthly',
+    features: [
+      '۱۰۰ گیگابایت فضای ذخیره‌سازی',
+      '۵ کاربر',
+      'پشتیبان‌گیری روزانه',
+      'پشتیبانی ۲۴/۷',
+      'رمزگذاری پیشرفته',
+      'بازیابی سریع فایل‌ها'
+    ],
+    storageLimit: 100,
+    maxUsers: 5,
+    backupFrequency: 'روزانه',
+    isPopular: true,
+    isCurrentPlan: true,
+  },
+  {
+    id: 'business',
+    name: 'کسب‌وکار',
+    price: 500000,
+    currency: 'IRR',
+    interval: 'monthly',
+    features: [
+      '۱ ترابایت فضای ذخیره‌سازی',
+      'کاربران نامحدود',
+      'پشتیبان‌گیری لحظه‌ای',
+      'پشتیبانی اختصاصی',
+      'رمزگذاری سطح بانکی',
+      'گزارش‌گیری پیشرفته',
+      'API دسترسی',
+      'مدیریت متمرکز'
+    ],
+    storageLimit: 1024,
+    maxUsers: -1, // unlimited
+    backupFrequency: 'لحظه‌ای',
+    isCurrentPlan: false,
+  },
+];
+
+export const mockBackupHistory: BackupHistory[] = [
+  {
+    id: 'BH-001',
+    fileName: 'گزارش ماهانه.pdf',
+    fileSize: 2048576,
+    backupDate: '2024-01-20T10:30:00Z',
     status: 'completed',
-    method: 'digital_wallet',
-    createdAt: '2024-01-15T13:30:00Z',
-    description: 'خرید خدمات اضافی'
+    backupType: 'automatic',
   },
   {
-    id: 'PAY-007',
-    userId: '1',
-    userName: 'علی احمدی',
-    amount: 420000,
-    currency: 'IRR',
-    status: 'pending',
-    method: 'credit_card',
-    createdAt: '2024-01-14T08:45:00Z',
-    description: 'خرید اشتراک سالانه'
-  },
-  {
-    id: 'PAY-008',
-    userId: '8',
-    userName: 'سارا نجفی',
-    amount: 95000,
-    currency: 'IRR',
+    id: 'BH-002',
+    fileName: 'پروژه طراحی',
+    fileSize: 52428800,
+    backupDate: '2024-01-20T09:15:00Z',
     status: 'completed',
-    method: 'bank_transfer',
-    createdAt: '2024-01-12T17:10:00Z',
-    description: 'پرداخت هزینه نگهداری'
-  }
+    backupType: 'automatic',
+  },
+  {
+    id: 'BH-003',
+    fileName: 'عکس‌های تیم',
+    fileSize: 10485760,
+    backupDate: '2024-01-19T16:45:00Z',
+    status: 'failed',
+    backupType: 'manual',
+  },
+  {
+    id: 'BH-004',
+    fileName: 'ویدیو معرفی',
+    fileSize: 104857600,
+    backupDate: '2024-01-19T14:22:00Z',
+    status: 'completed',
+    backupType: 'automatic',
+  },
+  {
+    id: 'BH-005',
+    fileName: 'آرشیو پروژه',
+    fileSize: 20971520,
+    backupDate: '2024-01-18T12:30:00Z',
+    status: 'in_progress',
+    backupType: 'manual',
+  },
 ];

@@ -13,6 +13,7 @@ import {
   RowSelectionState,
 } from '@tanstack/react-table';
 import * as XLSX from 'xlsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import {
   Table,
@@ -32,6 +33,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Download,
   Search,
@@ -40,7 +42,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Eye,
-  Trash2
+  Trash2,
+  Loader2
 } from 'lucide-react';
 
 interface DataTableProps<TData extends object, TValue> {
@@ -49,6 +52,7 @@ interface DataTableProps<TData extends object, TValue> {
   title: string;
   searchPlaceholder?: string;
   exportFileName?: string;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData extends object, TValue>({
@@ -56,7 +60,8 @@ export function DataTable<TData extends object, TValue>({
   data,
   title,
   searchPlaceholder = 'جستجو...',
-  exportFileName = 'data'
+  exportFileName = 'data',
+  isLoading = false
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -126,30 +131,45 @@ export function DataTable<TData extends object, TValue>({
   // Mobile card view for small screens
   const MobileCardView = () => (
     <div className="md:hidden space-y-4">
-      {table.getRowModel().rows.map((row) => (
-        <Card key={row.id} className="p-4">
-          <div className="space-y-3">
-            {row.getVisibleCells().map((cell) => (
-              <div key={cell.id} className="flex justify-between items-center">
-                <span className="text-sm font-medium text-muted-foreground">
-                  {typeof cell.column.columnDef.header === 'string'
-                    ? cell.column.columnDef.header
-                    : cell.column.id}
-                </span>
-                <span className="text-sm">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </span>
+      <AnimatePresence>
+        {table.getRowModel().rows.map((row, index) => (
+          <motion.div
+            key={row.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2, delay: index * 0.05 }}
+          >
+            <Card className="p-4">
+              <div className="space-y-3">
+                {row.getVisibleCells().map((cell) => (
+                  <div key={cell.id} className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {typeof cell.column.columnDef.header === 'string'
+                        ? cell.column.columnDef.header
+                        : cell.column.id}
+                    </span>
+                    <span className="text-sm">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </Card>
-      ))}
+            </Card>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 
   // Bulk actions bar
   const BulkActionsBar = () => (
-    <div className="flex flex-wrap gap-2 items-center bg-muted/60 border rounded-lg p-3 mb-4 shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="flex flex-wrap gap-2 items-center bg-muted/60 border rounded-lg p-3 mb-4 shadow-sm"
+    >
       <span className="text-sm font-medium">{summary.selectedCount} مورد انتخاب شده</span>
       <Button
         size="sm"
@@ -177,9 +197,11 @@ export function DataTable<TData extends object, TValue>({
         لغو انتخاب
       </Button>
       {summary.hasAmount && (summary.selectedAmount ?? 0) > 0 && (
-        <span className="text-xs text-muted-foreground">مجموع مبلغ انتخاب‌شده: {Number(summary.selectedAmount ?? 0).toLocaleString('fa-IR')} تومان</span>
+        <span className="text-xs text-muted-foreground">
+          مجموع مبلغ انتخاب‌شده: {Number(summary.selectedAmount ?? 0).toLocaleString('fa-IR')} تومان
+        </span>
       )}
-    </div>
+    </motion.div>
   );
 
   // Add selection column to columns
@@ -214,10 +236,28 @@ export function DataTable<TData extends object, TValue>({
     return [selectionColumn, ...columns];
   }, [columns]);
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">در حال بارگذاری...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+      >
         <div>
           <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
           <p className="text-muted-foreground">
@@ -276,81 +316,97 @@ export function DataTable<TData extends object, TValue>({
             خروجی اکسل
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Bulk Actions Bar */}
-      {summary.selectedCount > 0 && <BulkActionsBar />}
+      <AnimatePresence>
+        {summary.selectedCount > 0 && <BulkActionsBar />}
+      </AnimatePresence>
 
       {/* Desktop Table */}
-      <Card className="hidden md:block">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-right">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className="hover:bg-muted/50"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-right">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <Card className="hidden md:block">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="text-right">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={allColumns.length}
-                  className="h-24 text-center"
-                >
-                  هیچ داده‌ای یافت نشد.
-                </TableCell>
-              </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row, index) => (
+                  <motion.tr
+                    key={row.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="text-right">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </motion.tr>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={allColumns.length}
+                    className="h-24 text-center"
+                  >
+                    هیچ داده‌ای یافت نشد.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+            {/* Summary Row */}
+            {summary.hasAmount && typeof summary.totalAmount === 'number' && summary.totalCount > 0 && (
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={2} className="font-bold text-right">جمع کل</TableCell>
+                  <TableCell className="font-bold text-left" dir="ltr">
+                    {Number(summary.totalAmount ?? 0).toLocaleString('fa-IR')} تومان
+                  </TableCell>
+                  {allColumns.slice(3).map((col, idx) => (
+                    <TableCell key={col.id || idx} />
+                  ))}
+                </TableRow>
+              </TableFooter>
             )}
-          </TableBody>
-          {/* Summary Row */}
-          {summary.hasAmount && typeof summary.totalAmount === 'number' && summary.totalCount > 0 && (
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={2} className="font-bold text-right">جمع کل</TableCell>
-                <TableCell className="font-bold text-left" dir="ltr">
-                  {Number(summary.totalAmount ?? 0).toLocaleString('fa-IR')} تومان
-                </TableCell>
-                {allColumns.slice(3).map((col, idx) => (
-                  <TableCell key={col.id || idx} />
-                ))}
-              </TableRow>
-            </TableFooter>
-          )}
-        </Table>
-      </Card>
+          </Table>
+        </Card>
+      </motion.div>
 
       {/* Mobile Card View */}
       <MobileCardView />
 
       {/* Pagination */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div className="text-sm text-muted-foreground">
           نمایش {table.getState().pagination.pageIndex + 1} از{' '}
           {table.getPageCount()} صفحه
@@ -389,7 +445,7 @@ export function DataTable<TData extends object, TValue>({
             <ChevronsLeft className="h-4 w-4" />
           </Button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

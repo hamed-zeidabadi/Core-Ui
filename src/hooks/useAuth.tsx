@@ -1,15 +1,16 @@
 import { useState, useContext, createContext, ReactNode, useEffect } from 'react';
-import { AuthUser } from '@/types';
-// import { authService } from '@/services/authService';
-// import { tokenManager } from '@/lib/api';
+import { AuthUser, LoginFormData } from '@/types';
+import { authService } from '@/services/authService';
+import { tokenManager } from '@/lib/api';
 
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: () => Promise<boolean>;
+  login: (credentials: LoginFormData) => Promise<boolean>;
   logout: () => Promise<void>;
-  forgotPassword: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  updateProfile: (data: Partial<AuthUser>) => Promise<void>;
   checkAuthStatus: () => void;
 }
 
@@ -24,66 +25,63 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // For UI testing, we'll set initial state based on the current URL
-  // This allows us to see both authenticated and non-authenticated views
-  const isLoginPage = window.location.pathname.includes('login') ||
-    window.location.pathname.includes('forgot-password');
-
-  const [user, setUser] = useState<AuthUser | null>(isLoginPage ? null : {
-    id: '1',
-    name: 'مدیر سیستم',
-    email: 'admin@example.com',
-    role: 'admin'
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(!isLoginPage);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Initialize auth state on app load
   useEffect(() => {
-    // For UI testing, we'll set auth state based on the current URL
-    const isLoginPage = window.location.pathname.includes('login') ||
-      window.location.pathname.includes('forgot-password');
-    setIsAuthenticated(!isLoginPage);
-    setIsLoading(false);
+    checkAuthStatus();
   }, []);
 
   const checkAuthStatus = () => {
-    // For UI testing, we'll set auth state based on the current URL
-    const isLoginPage = window.location.pathname.includes('login') ||
-      window.location.pathname.includes('forgot-password');
-    setIsAuthenticated(!isLoginPage);
-    setIsLoading(false);
+    setIsLoading(true);
+    try {
+      const token = tokenManager.getToken();
+      const savedUser = localStorage.getItem('auth-user');
+      
+      if (token && !tokenManager.isTokenExpired(token) && savedUser) {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        setIsAuthenticated(true);
+      } else {
+        clearAuthState();
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      clearAuthState();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const clearAuthState = () => {
-    // For UI testing, we'll just log this action
-    console.log('Auth state cleared (UI testing mode)');
     setUser(null);
     setIsAuthenticated(false);
+    tokenManager.removeToken();
+    localStorage.removeItem('auth-user');
+    localStorage.removeItem('refresh-token');
   };
 
-  const login = async () => {
+  const login = async (credentials: LoginFormData): Promise<boolean> => {
     setIsLoading(true);
 
     try {
-      // Mock successful login for UI testing
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Set mock user data
-      const mockUser: AuthUser = {
-        id: '1',
-        name: 'مدیر سیستم',
-        email: 'admin@example.com',
-        role: 'admin'
-      };
+      const response = await authService.login(credentials);
+      
+      // Store tokens and user data
+      tokenManager.setToken(response.token);
+      localStorage.setItem('auth-user', JSON.stringify(response.user));
+      localStorage.setItem('refresh-token', response.refreshToken);
 
       // Update state
-      setUser(mockUser);
+      setUser(response.user);
       setIsAuthenticated(true);
 
       return true;
     } catch (error) {
       console.error('Login error:', error);
+      clearAuthState();
       return false;
     } finally {
       setIsLoading(false);
@@ -94,25 +92,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
 
     try {
-      // Mock logout for UI testing
-      await new Promise(resolve => setTimeout(resolve, 500));
-      console.log('Logged out (UI testing mode)');
+      await authService.logout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // For UI testing, we'll actually log out
       clearAuthState();
       setIsLoading(false);
     }
   };
 
-  const forgotPassword = async (): Promise<void> => {
+  const forgotPassword = async (email: string): Promise<void> => {
     try {
-      // Mock forgot password for UI testing
-      await new Promise(resolve => setTimeout(resolve, 500));
-      console.log('Password reset email sent (UI testing mode)');
+      await authService.forgotPassword(email);
     } catch (error) {
       console.error('Forgot password error:', error);
+      throw error;
+    }
+  };
+
+  const updateProfile = async (data: Partial<AuthUser>): Promise<void> => {
+    if (!user) throw new Error('No user logged in');
+
+    try {
+      const updatedUser = { ...user, ...data };
+      localStorage.setItem('auth-user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
     }
   };
 
@@ -123,6 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login,
     logout,
     forgotPassword,
+    updateProfile,
     checkAuthStatus,
   };
 

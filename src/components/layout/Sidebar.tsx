@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Users,
   CreditCard,
@@ -12,6 +13,8 @@ import {
   ChevronRight,
   Loader2,
   FolderOpen,
+  User,
+  Crown,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -38,6 +41,16 @@ const navigation = [
     href: '/dashboard/files',
     icon: FolderOpen,
   },
+  {
+    name: 'پروفایل کاربری',
+    href: '/dashboard/profile',
+    icon: User,
+  },
+  {
+    name: 'پلان‌ها و اشتراک',
+    href: '/dashboard/plans',
+    icon: Crown,
+  },
 ];
 
 interface SidebarProps {
@@ -60,6 +73,15 @@ export function Sidebar({ className }: SidebarProps) {
     } finally {
       setIsLoggingOut(false);
     }
+  };
+
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const SidebarContent = () => (
@@ -111,9 +133,17 @@ export function Sidebar({ className }: SidebarProps) {
       {/* User Info & Logout */}
       <div className="border-t px-3 py-4">
         {!collapsed && user && (
-          <div className="mb-3 px-3">
-            <p className="text-sm font-medium">{user.name}</p>
-            <p className="text-xs text-muted-foreground">{user.email}</p>
+          <div className="mb-3 px-3 flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="text-xs">
+                {getUserInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
           </div>
         )}
         <Button

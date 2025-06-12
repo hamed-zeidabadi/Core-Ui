@@ -9,6 +9,8 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { UsersPage } from '@/pages/UsersPage';
 import { PaymentsPage } from '@/pages/PaymentsPage';
 import { FileManagerPage } from '@/pages/FileManagerPage';
+import { ProfilePage } from '@/pages/ProfilePage';
+import { PlansPage } from '@/pages/PlansPage';
 
 function App() {
   return (
@@ -16,7 +18,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-background font-sans antialiased">
           <Routes>
-            {/* Public Routes - accessible even when authenticated for UI testing */}
+            {/* Public Routes */}
             <Route
               path="/login"
               element={
@@ -34,7 +36,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes - require authentication */}
+            {/* Protected Routes */}
             <Route
               path="/dashboard"
               element={
@@ -47,13 +49,15 @@ function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="payments" element={<PaymentsPage />} />
               <Route path="files" element={<FileManagerPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="plans" element={<PlansPage />} />
             </Route>
 
-            {/* Redirect root to login for UI testing */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* Redirect root to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Catch all route - redirect to login for UI testing */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
 
           <Toaster position="top-center" richColors />
