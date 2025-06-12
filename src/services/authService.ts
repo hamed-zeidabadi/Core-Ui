@@ -27,16 +27,16 @@ class AuthService {
       // Generate mock JWT token
       const mockToken = this.generateMockJWT({
         sub: "1",
-        name: "مدیر سیستم",
-        email: credentials.email,
+        name: "System Admin", // Changed from "مدیر سیستم"
+        email: credentials.email, // اطمینان حاصل کنید که credentials.email اینجا استفاده می‌شود
         role: "admin",
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours
       });
 
       const user: AuthUser = {
         id: "1",
-        name: "مدیر سیستم",
-        email: credentials.email,
+        name: "System Admin", // Changed from "مدیر سیستم"
+        email: credentials.email, // اطمینان حاصل کنید که credentials.email اینجا استفاده می‌شود
         role: "admin",
         avatar:
           "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1",
@@ -52,6 +52,8 @@ class AuthService {
       //   throw new Error("Invalid credentials");
       // }
     } catch (error) {
+      // برای دیباگ بهتر، می‌توانید خطای اصلی را نیز لاگ کنید
+      console.error("Error in AuthService.login:", error);
       throw new Error("Login failed");
     }
   }
