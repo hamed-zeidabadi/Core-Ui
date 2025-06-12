@@ -1,22 +1,34 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useAuth } from '@/hooks/useAuth';
-import { LoginFormData } from '@/types';
-import { Loader2, Mail, Lock, LayoutDashboard, AlertCircle } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginFormData } from "@/types";
+import {
+  Loader2,
+  Mail,
+  Lock,
+  LayoutDashboard,
+  AlertCircle,
+} from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email('لطفاً یک ایمیل معتبر وارد کنید'),
-  password: z.string().min(6, 'رمز عبور باید حداقل ۶ کاراکتر باشد'),
+  email: z.string().email("لطفاً یک ایمیل معتبر وارد کنید"),
+  password: z.string().min(6, "رمز عبور باید حداقل ۶ کاراکتر باشد"),
   remember: z.boolean().optional(),
 });
 
@@ -24,22 +36,22 @@ export function LoginPage() {
   const { isAuthenticated, login, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loginError, setLoginError] = useState<string>('');
+  const [loginError, setLoginError] = useState<string>("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-    watch
+    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      remember: false
-    }
+      remember: false,
+    },
   });
 
-  const rememberValue = watch('remember');
+  const rememberValue = watch("remember");
 
   // If already authenticated, redirect will be handled by PublicRoute
   if (isAuthenticated) {
@@ -47,23 +59,23 @@ export function LoginPage() {
   }
 
   const onSubmit = async (data: LoginFormData) => {
-    setLoginError('');
+    setLoginError("");
 
     try {
-      const success = await login();
+      const success = await login(data);
       if (success) {
-        toast.success('ورود موفقیت‌آمیز');
+        toast.success("ورود موفقیت‌آمیز");
 
         // Redirect to the originally requested page or dashboard
-        const from = location.state?.from?.pathname || '/dashboard';
+        const from = location.state?.from?.pathname || "/dashboard";
         navigate(from, { replace: true });
       } else {
-        setLoginError('ایمیل یا رمز عبور اشتباه است');
-        toast.error('ایمیل یا رمز عبور اشتباه است');
+        setLoginError("ایمیل یا رمز عبور اشتباه است");
+        toast.error("ایمیل یا رمز عبور اشتباه است");
       }
     } catch {
-      setLoginError('خطا در ورود به سیستم');
-      toast.error('خطا در ورود به سیستم');
+      setLoginError("خطا در ورود به سیستم");
+      toast.error("خطا در ورود به سیستم");
     }
   };
 
@@ -108,11 +120,13 @@ export function LoginPage() {
                     type="email"
                     placeholder="admin@example.com"
                     className="pr-10"
-                    {...register('email')}
+                    {...register("email")}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -126,11 +140,13 @@ export function LoginPage() {
                     type="password"
                     placeholder="password"
                     className="pr-10"
-                    {...register('password')}
+                    {...register("password")}
                   />
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -140,7 +156,9 @@ export function LoginPage() {
                   <Checkbox
                     id="remember"
                     checked={rememberValue}
-                    onCheckedChange={(checked) => setValue('remember', !!checked)}
+                    onCheckedChange={(checked) =>
+                      setValue("remember", !!checked)
+                    }
                   />
                   <Label htmlFor="remember" className="text-sm">
                     مرا به خاطر بسپار
@@ -155,18 +173,14 @@ export function LoginPage() {
               </div>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                     در حال ورود...
                   </>
                 ) : (
-                  'ورود'
+                  "ورود"
                 )}
               </Button>
             </form>
@@ -177,8 +191,12 @@ export function LoginPage() {
                 اطلاعات نمونه برای تست:
               </p>
               <div className="text-xs space-y-1 text-center">
-                <p><strong>ایمیل:</strong> admin@example.com</p>
-                <p><strong>رمز عبور:</strong> password</p>
+                <p>
+                  <strong>ایمیل:</strong> admin@example.com
+                </p>
+                <p>
+                  <strong>رمز عبور:</strong> password
+                </p>
               </div>
             </div>
           </CardContent>

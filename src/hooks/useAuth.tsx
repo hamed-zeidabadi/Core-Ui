@@ -1,7 +1,13 @@
-import { useState, useContext, createContext, ReactNode, useEffect } from 'react';
-import { AuthUser, LoginFormData } from '@/types';
-import { authService } from '@/services/authService';
-import { tokenManager } from '@/lib/api';
+import {
+  useState,
+  useContext,
+  createContext,
+  ReactNode,
+  useEffect,
+} from "react";
+import { AuthUser, LoginFormData } from "@/types";
+import { authService } from "@/services/authService";
+import { tokenManager } from "@/lib/tokenManager";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -19,7 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -38,8 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const token = tokenManager.getToken();
-      const savedUser = localStorage.getItem('auth-user');
-      
+      const savedUser = localStorage.getItem("auth-user");
+
       if (token && !tokenManager.isTokenExpired(token) && savedUser) {
         const userData = JSON.parse(savedUser);
         setUser(userData);
@@ -48,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         clearAuthState();
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       clearAuthState();
     } finally {
       setIsLoading(false);
@@ -59,8 +65,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setIsAuthenticated(false);
     tokenManager.removeToken();
-    localStorage.removeItem('auth-user');
-    localStorage.removeItem('refresh-token');
+    localStorage.removeItem("auth-user");
+    localStorage.removeItem("refresh-token");
   };
 
   const login = async (credentials: LoginFormData): Promise<boolean> => {
@@ -68,11 +74,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const response = await authService.login(credentials);
-      
+
       // Store tokens and user data
       tokenManager.setToken(response.token);
-      localStorage.setItem('auth-user', JSON.stringify(response.user));
-      localStorage.setItem('refresh-token', response.refreshToken);
+      localStorage.setItem("auth-user", JSON.stringify(response.user));
+      localStorage.setItem("refresh-token", response.refreshToken);
 
       // Update state
       setUser(response.user);
@@ -80,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       clearAuthState();
       return false;
     } finally {
@@ -94,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       clearAuthState();
       setIsLoading(false);
@@ -105,20 +111,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await authService.forgotPassword(email);
     } catch (error) {
-      console.error('Forgot password error:', error);
+      console.error("Forgot password error:", error);
       throw error;
     }
   };
 
   const updateProfile = async (data: Partial<AuthUser>): Promise<void> => {
-    if (!user) throw new Error('No user logged in');
+    if (!user) throw new Error("No user logged in");
 
     try {
       const updatedUser = { ...user, ...data };
-      localStorage.setItem('auth-user', JSON.stringify(updatedUser));
+      localStorage.setItem("auth-user", JSON.stringify(updatedUser));
       setUser(updatedUser);
     } catch (error) {
-      console.error('Update profile error:', error);
+      console.error("Update profile error:", error);
       throw error;
     }
   };
@@ -134,9 +140,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuthStatus,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
