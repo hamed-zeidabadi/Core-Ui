@@ -1,20 +1,32 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/hooks/useAuth';
-import { ForgotPasswordFormData } from '@/types';
-import { Loader2, Mail, ArrowRight, LayoutDashboard, AlertCircle } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
+import { ForgotPasswordFormData } from "@/types";
+import {
+  Loader2,
+  Mail,
+  ArrowRight,
+  LayoutDashboard,
+  AlertCircle,
+} from "lucide-react";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('لطفاً یک ایمیل معتبر وارد کنید'),
+  email: z.string().email("لطفاً یک ایمیل معتبر وارد کنید"),
 });
 
 export function ForgotPasswordPage() {
@@ -34,11 +46,11 @@ export function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      await forgotPassword();
+      await forgotPassword(data.email); // Pass data.email here
       setEmailSent(true);
-      toast.success('ایمیل بازیابی رمز عبور ارسال شد');
+      toast.success("ایمیل بازیابی رمز عبور ارسال شد");
     } catch {
-      toast.error('خطا در ارسال ایمیل بازیابی');
+      toast.error("خطا در ارسال ایمیل بازیابی");
     } finally {
       setIsLoading(false);
     }
@@ -61,13 +73,12 @@ export function ForgotPasswordPage() {
         <Card className="border-0 shadow-xl">
           <CardHeader className="space-y-1 pb-6">
             <CardTitle className="text-xl text-center">
-              {emailSent ? 'ایمیل ارسال شد' : 'فراموشی رمز عبور'}
+              {emailSent ? "ایمیل ارسال شد" : "فراموشی رمز عبور"}
             </CardTitle>
             <CardDescription className="text-center">
               {emailSent
-                ? 'لطفاً ایمیل خود را بررسی کنید'
-                : 'ایمیل حساب کاربری خود را وارد کنید'
-              }
+                ? "لطفاً ایمیل خود را بررسی کنید"
+                : "ایمیل حساب کاربری خود را وارد کنید"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -77,8 +88,9 @@ export function ForgotPasswordPage() {
                   <Mail className="h-8 w-8 text-green-600" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  ایمیل حاوی لینک بازیابی رمز عبور به آدرس ایمیل شما ارسال شده است.
-                  اگر ایمیل را دریافت نکردید، لطفاً پوشه هرزنامه خود را بررسی کنید.
+                  ایمیل حاوی لینک بازیابی رمز عبور به آدرس ایمیل شما ارسال شده
+                  است. اگر ایمیل را دریافت نکردید، لطفاً پوشه هرزنامه خود را
+                  بررسی کنید.
                 </p>
                 <div className="pt-4">
                   <Link to="/login">
@@ -109,24 +121,20 @@ export function ForgotPasswordPage() {
                       type="email"
                       placeholder="example@domain.com"
                       className="pr-10"
-                      {...register('email')}
+                      {...register("email")}
                     />
                   </div>
                 </div>
 
                 {/* Submit Button */}
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                >
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                       در حال ارسال...
                     </>
                   ) : (
-                    'ارسال لینک بازیابی'
+                    "ارسال لینک بازیابی"
                   )}
                 </Button>
 
